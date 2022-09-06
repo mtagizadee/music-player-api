@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+model Session {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique @default(uuid())
+  expiresAt DateTime
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int  @unique
+}
+
+model User {
+  id         Int    @id @default(autoincrement())
+  firstName  String
+  secondName String
+  email      String @unique
+  password   String
+
+  Session Session?
+}
+
+model File {
+  id       Int    @id @default(autoincrement())
+  path     String
+  filename String
+  mimetype String
+
+  song   Song? @relation(fields: [songId], references: [id])
+  songId Int?  @unique
+
+  picture   Picture? @relation(fields: [pictureId], references: [id])
+  pictureId Int?     @unique
+}
+
+model Song {
+  id     Int    @id @default(autoincrement())
+  author String
+  name   String
+
+  file    File?
+  picture Picture?
+}
+
+model Picture {
+  id   Int   @id @default(autoincrement())
+  file File?
+
+  song   Song? @relation(fields: [songId], references: [id])
+  songId Int?  @unique
+}
